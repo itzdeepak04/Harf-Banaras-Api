@@ -6,6 +6,7 @@ import { OrderStatus } from '../../core/enums/order-status.enum';
 import { SettingsService } from '../settings/settings.service';
 import { CouponsService } from '../coupons/coupons.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
+import { NotificationGateway } from '../notifications/notification.gateway';
 export declare class OrdersService {
     private orderModel;
     private cartModel;
@@ -13,7 +14,8 @@ export declare class OrdersService {
     private readonly settingsService;
     private readonly couponsService;
     private readonly auditLogService;
-    constructor(orderModel: Model<OrderDocument>, cartModel: Model<CartDocument>, productModel: Model<ProductDocument>, settingsService: SettingsService, couponsService: CouponsService, auditLogService: AuditLogService);
+    private readonly notificationGateway;
+    constructor(orderModel: Model<OrderDocument>, cartModel: Model<CartDocument>, productModel: Model<ProductDocument>, settingsService: SettingsService, couponsService: CouponsService, auditLogService: AuditLogService, notificationGateway: NotificationGateway);
     private genOrderNumber;
     placeOrder(userId: string, shippingAddress: any, giftMessage?: string, isGiftWrapped?: boolean): Promise<import("mongoose").Document<unknown, {}, OrderDocument, {}, {}> & Order & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
         _id: import("mongoose").Types.ObjectId;

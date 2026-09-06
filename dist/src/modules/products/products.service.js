@@ -19,18 +19,21 @@ const mongoose_2 = require("mongoose");
 const product_schema_1 = require("../../database/schemas/product.schema");
 const stock_movement_schema_1 = require("../../database/schemas/stock-movement.schema");
 const product_status_enum_1 = require("../../core/enums/product-status.enum");
+const product_status_enum_2 = require("../../core/enums/product-status.enum");
 const audit_log_service_1 = require("../audit-log/audit-log.service");
 const export_1 = require("../../core/utils/export");
 const category_schema_1 = require("../../database/schemas/category.schema");
 const blob_service_1 = require("../../core/blob/blob.service");
+const notification_gateway_1 = require("../notifications/notification.gateway");
 const crypto_1 = require("crypto");
 let ProductsService = class ProductsService {
-    constructor(productModel, stockMovementModel, categoryModel, auditLogService, blobService) {
+    constructor(productModel, stockMovementModel, categoryModel, auditLogService, blobService, notificationGateway) {
         this.productModel = productModel;
         this.stockMovementModel = stockMovementModel;
         this.categoryModel = categoryModel;
         this.auditLogService = auditLogService;
         this.blobService = blobService;
+        this.notificationGateway = notificationGateway;
     }
     computeStockStatus(product) {
         if (product.availableQuantity <= 0)
@@ -64,6 +67,15 @@ let ProductsService = class ProductsService {
         await this.auditLogService.record(userId, 'PRODUCT_CREATED', 'Product', product._id.toString(), {
             name: product.name,
         });
+        if (product.status === product_status_enum_2.ProductStatus.PUBLISHED) {
+            this.notificationGateway.notifyCustomers({
+                type: 'product_created',
+                title: 'A new saree has arrived',
+                message: `${product.name} is now available in the collection.`,
+                route: `/product/${product._id}`,
+                entityId: product._id.toString(),
+            });
+        }
         return this.withImageUrls(product);
     }
     async resolveCategory(value, type) {
@@ -95,9 +107,14 @@ let ProductsService = class ProductsService {
         return { ...item, imagePaths: paths, images: paths, imageUrls };
     }
     async findAll(query) {
-        const filter = { status: 'published' };
-        if (query.search)
-            filter.$text = { $search: query.search };
+        const filter = {};
+        if (!query.search) {
+            filter.status = 'published';
+        }
+        if (query.search) {
+            const re = new RegExp(query.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+            filter.$or = [{ name: re }, { sku: re }, { shortDescription: re }];
+        }
         if (query.sareeType) {
             const sareeType = /^[a-f\d]{24}$/i.test(query.sareeType)
                 ? { _id: query.sareeType }
@@ -278,6 +295,7 @@ exports.ProductsService = ProductsService = __decorate([
         mongoose_2.Model,
         mongoose_2.Model,
         audit_log_service_1.AuditLogService,
-        blob_service_1.BlobService])
+        blob_service_1.BlobService,
+        notification_gateway_1.NotificationGateway])
 ], ProductsService);
 //# sourceMappingURL=products.service.js.map

@@ -24,15 +24,17 @@ const messages_shared_1 = require("../../shared/messages.shared");
 const settings_service_1 = require("../settings/settings.service");
 const coupons_service_1 = require("../coupons/coupons.service");
 const audit_log_service_1 = require("../audit-log/audit-log.service");
+const notification_gateway_1 = require("../notifications/notification.gateway");
 const CANCELLABLE_STATUSES = [order_status_enum_1.OrderStatus.PLACED, order_status_enum_1.OrderStatus.CONFIRMED, order_status_enum_1.OrderStatus.PACKED];
 let OrdersService = class OrdersService {
-    constructor(orderModel, cartModel, productModel, settingsService, couponsService, auditLogService) {
+    constructor(orderModel, cartModel, productModel, settingsService, couponsService, auditLogService, notificationGateway) {
         this.orderModel = orderModel;
         this.cartModel = cartModel;
         this.productModel = productModel;
         this.settingsService = settingsService;
         this.couponsService = couponsService;
         this.auditLogService = auditLogService;
+        this.notificationGateway = notificationGateway;
     }
     genOrderNumber() {
         return `HB${Date.now()}${Math.floor(Math.random() * 1000)}`;
@@ -109,6 +111,13 @@ let OrdersService = class OrdersService {
                 total: order.total,
                 itemCount: orderItems.length,
             });
+            this.notificationGateway.notifyRoles(['admin', 'inventory_manager'], {
+                type: 'order_placed',
+                title: 'New order received',
+                message: `${order.orderNumber} has been placed for ₹${order.total}.`,
+                route: '/admin/orders',
+                entityId: order._id.toString(),
+            });
             return order;
         }
         catch (error) {
@@ -152,6 +161,13 @@ let OrdersService = class OrdersService {
         await this.auditLogService.record(userId, 'ORDER_CANCELLED', 'Order', order._id.toString(), {
             reason,
         });
+        this.notificationGateway.notifyUser(userId, {
+            type: 'order_status_updated',
+            title: 'Order cancelled',
+            message: `${order.orderNumber} has been cancelled.`,
+            route: `/profile/orders/${order._id}`,
+            entityId: order._id.toString(),
+        });
         return order;
     }
     async updateStatus(id, status, note = '', performedBy) {
@@ -165,6 +181,13 @@ let OrdersService = class OrdersService {
         if (performedBy) {
             await this.auditLogService.record(performedBy, 'ORDER_STATUS_UPDATED', 'Order', order._id.toString(), { from: previousStatus, to: status, note });
         }
+        this.notificationGateway.notifyUser(order.user.toString(), {
+            type: 'order_status_updated',
+            title: 'Order status updated',
+            message: `${order.orderNumber} is now ${status.replace(/_/g, ' ')}.`,
+            route: `/profile/orders/${order._id}`,
+            entityId: order._id.toString(),
+        });
         return order;
     }
 };
@@ -179,6 +202,7 @@ exports.OrdersService = OrdersService = __decorate([
         mongoose_2.Model,
         settings_service_1.SettingsService,
         coupons_service_1.CouponsService,
-        audit_log_service_1.AuditLogService])
+        audit_log_service_1.AuditLogService,
+        notification_gateway_1.NotificationGateway])
 ], OrdersService);
 //# sourceMappingURL=orders.service.js.map

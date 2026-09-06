@@ -8,7 +8,7 @@ import { CurrentUser } from '../../core/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../../core/interfaces/authenticated-user.interface';
 import { createResponse } from '../../shared/appresponse.shared';
 import { MESSAGES } from '../../shared/messages.shared';
-import { OrderStatus } from '../../core/enums/order-status.enum';
+import { UpdateOrderStatusDto } from './dto/order.dto';
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
@@ -66,7 +66,7 @@ export class OrdersController {
   async updateStatus(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
-    @Body() dto: { status: OrderStatus; note?: string },
+    @Body() dto: UpdateOrderStatusDto,
   ) {
     const order = await this.ordersService.updateStatus(id, dto.status, dto.note, user.userId);
     return createResponse(HttpStatus.OK, 'Order status updated', order);

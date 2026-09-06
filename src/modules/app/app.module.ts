@@ -16,6 +16,7 @@ import { AuditLogModule } from '../audit-log/audit-log.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BlobModule } from '../../core/blob/blob.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { BlobModule } from '../../core/blob/blob.module';
     SettingsModule,
     AuditLogModule,
     BlobModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

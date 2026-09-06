@@ -14,12 +14,13 @@ const database_module_1 = require("../../database/database.module");
 const settings_module_1 = require("../settings/settings.module");
 const coupons_module_1 = require("../coupons/coupons.module");
 const audit_log_module_1 = require("../audit-log/audit-log.module");
+const notifications_module_1 = require("../notifications/notifications.module");
 let OrdersModule = class OrdersModule {
 };
 exports.OrdersModule = OrdersModule;
 exports.OrdersModule = OrdersModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule, settings_module_1.SettingsModule, coupons_module_1.CouponsModule, audit_log_module_1.AuditLogModule],
+        imports: [database_module_1.DatabaseModule, settings_module_1.SettingsModule, coupons_module_1.CouponsModule, audit_log_module_1.AuditLogModule, notifications_module_1.NotificationsModule],
         controllers: [orders_controller_1.OrdersController],
         providers: [orders_service_1.OrdersService],
         exports: [orders_service_1.OrdersService],

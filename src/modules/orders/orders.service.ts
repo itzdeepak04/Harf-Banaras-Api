@@ -9,6 +9,7 @@ import { MESSAGES } from '../../shared/messages.shared';
 import { SettingsService } from '../settings/settings.service';
 import { CouponsService } from '../coupons/coupons.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
+import { NotificationGateway } from '../notifications/notification.gateway';
 
 const CANCELLABLE_STATUSES = [OrderStatus.PLACED, OrderStatus.CONFIRMED, OrderStatus.PACKED];
 
@@ -21,6 +22,7 @@ export class OrdersService {
     private readonly settingsService: SettingsService,
     private readonly couponsService: CouponsService,
     private readonly auditLogService: AuditLogService,
+    private readonly notificationGateway: NotificationGateway,
   ) {}
 
   private genOrderNumber() {
@@ -123,6 +125,14 @@ export class OrdersService {
       itemCount: orderItems.length,
     });
 
+    this.notificationGateway.notifyRoles(['admin', 'inventory_manager'], {
+      type: 'order_placed',
+      title: 'New order received',
+      message: `${order.orderNumber} has been placed for ₹${order.total}.`,
+      route: '/admin/orders',
+      entityId: order._id.toString(),
+    });
+
       return order;
     } catch (error) {
       if (!orderCreated) {
@@ -175,6 +185,14 @@ export class OrdersService {
       reason,
     });
 
+    this.notificationGateway.notifyUser(userId, {
+      type: 'order_status_updated',
+      title: 'Order cancelled',
+      message: `${order.orderNumber} has been cancelled.`,
+      route: `/profile/orders/${order._id}`,
+      entityId: order._id.toString(),
+    });
+
     return order;
   }
 
@@ -196,6 +214,14 @@ export class OrdersService {
         { from: previousStatus, to: status, note },
       );
     }
+
+    this.notificationGateway.notifyUser(order.user.toString(), {
+      type: 'order_status_updated',
+      title: 'Order status updated',
+      message: `${order.orderNumber} is now ${status.replace(/_/g, ' ')}.`,
+      route: `/profile/orders/${order._id}`,
+      entityId: order._id.toString(),
+    });
 
     return order;
   }

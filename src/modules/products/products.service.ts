@@ -7,12 +7,14 @@ import {
   StockMovementDocument,
 } from '../../database/schemas/stock-movement.schema';
 import { StockStatus } from '../../core/enums/product-status.enum';
+import { ProductStatus } from '../../core/enums/product-status.enum';
 import { ProductsAbstract } from './products.abstract';
 import { ProductQueryDto } from './dto/product-query.dto';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { convertToCSV, parseCSV } from '../../core/utils/export';
 import { Category, CategoryDocument } from '../../database/schemas/category.schema';
 import { BlobService } from '../../core/blob/blob.service';
+import { NotificationGateway } from '../notifications/notification.gateway';
 import { randomUUID } from 'crypto';
 
 @Injectable()
@@ -24,6 +26,7 @@ export class ProductsService implements ProductsAbstract {
     @InjectModel(Category.name) private categoryModel: Model<CategoryDocument>,
     private readonly auditLogService: AuditLogService,
     private readonly blobService: BlobService,
+    private readonly notificationGateway: NotificationGateway,
   ) {}
 
   private computeStockStatus(product: Product): StockStatus {
@@ -59,6 +62,15 @@ export class ProductsService implements ProductsAbstract {
     await this.auditLogService.record(userId, 'PRODUCT_CREATED', 'Product', product._id.toString(), {
       name: product.name,
     });
+    if (product.status === ProductStatus.PUBLISHED) {
+      this.notificationGateway.notifyCustomers({
+        type: 'product_created',
+        title: 'A new saree has arrived',
+        message: `${product.name} is now available in the collection.`,
+        route: `/product/${product._id}`,
+        entityId: product._id.toString(),
+      });
+    }
     return this.withImageUrls(product);
   }
 
@@ -89,9 +101,21 @@ export class ProductsService implements ProductsAbstract {
   }
 
   async findAll(query: ProductQueryDto) {
-    const filter: any = { status: 'published' };
+    const filter: any = {};
 
-    if (query.search) filter.$text = { $search: query.search };
+    // When a search term is present the caller is admin/inventory — show all statuses.
+    // For public storefront browsing (no search), restrict to published only.
+    if (!query.search) {
+      filter.status = 'published';
+    }
+
+    // Regex search across name, SKU, and shortDescription (case-insensitive).
+    // This avoids needing a MongoDB text index and also works for partial SKU matches.
+    if (query.search) {
+      const re = new RegExp(query.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      filter.$or = [{ name: re }, { sku: re }, { shortDescription: re }];
+    }
+
     if (query.sareeType) {
       const sareeType = /^[a-f\d]{24}$/i.test(query.sareeType)
         ? { _id: query.sareeType }

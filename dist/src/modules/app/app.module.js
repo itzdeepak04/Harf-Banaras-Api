@@ -25,6 +25,7 @@ const audit_log_module_1 = require("../audit-log/audit-log.module");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const blob_module_1 = require("../../core/blob/blob.module");
+const notifications_module_1 = require("../notifications/notifications.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -46,6 +47,7 @@ exports.AppModule = AppModule = __decorate([
             settings_module_1.SettingsModule,
             audit_log_module_1.AuditLogModule,
             blob_module_1.BlobModule,
+            notifications_module_1.NotificationsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

@@ -6,13 +6,15 @@ import { ProductQueryDto } from './dto/product-query.dto';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { CategoryDocument } from '../../database/schemas/category.schema';
 import { BlobService } from '../../core/blob/blob.service';
+import { NotificationGateway } from '../notifications/notification.gateway';
 export declare class ProductsService implements ProductsAbstract {
     private productModel;
     private stockMovementModel;
     private categoryModel;
     private readonly auditLogService;
     private readonly blobService;
-    constructor(productModel: Model<ProductDocument>, stockMovementModel: Model<StockMovementDocument>, categoryModel: Model<CategoryDocument>, auditLogService: AuditLogService, blobService: BlobService);
+    private readonly notificationGateway;
+    constructor(productModel: Model<ProductDocument>, stockMovementModel: Model<StockMovementDocument>, categoryModel: Model<CategoryDocument>, auditLogService: AuditLogService, blobService: BlobService, notificationGateway: NotificationGateway);
     private computeStockStatus;
     private generateUniqueSku;
     create(dto: any, userId: string): Promise<any>;

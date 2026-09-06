@@ -22,6 +22,7 @@ const role_enum_1 = require("../../core/enums/role.enum");
 const current_user_decorator_1 = require("../../core/decorators/current-user.decorator");
 const appresponse_shared_1 = require("../../shared/appresponse.shared");
 const messages_shared_1 = require("../../shared/messages.shared");
+const order_dto_1 = require("./dto/order.dto");
 let OrdersController = class OrdersController {
     constructor(ordersService) {
         this.ordersService = ordersService;
@@ -100,7 +101,7 @@ __decorate([
     __param(1, (0, common_1.Param)('id')),
     __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:paramtypes", [Object, String, order_dto_1.UpdateOrderStatusDto]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "updateStatus", null);
 exports.OrdersController = OrdersController = __decorate([

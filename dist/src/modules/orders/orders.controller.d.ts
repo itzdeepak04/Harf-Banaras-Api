@@ -1,6 +1,6 @@
 import { OrdersService } from './orders.service';
 import { AuthenticatedUser } from '../../core/interfaces/authenticated-user.interface';
-import { OrderStatus } from '../../core/enums/order-status.enum';
+import { UpdateOrderStatusDto } from './dto/order.dto';
 export declare class OrdersController {
     private readonly ordersService;
     constructor(ordersService: OrdersService);
@@ -35,10 +35,7 @@ export declare class OrdersController {
     }> & {
         __v: number;
     })[]>>;
-    updateStatus(user: AuthenticatedUser, id: string, dto: {
-        status: OrderStatus;
-        note?: string;
-    }): Promise<import("../../shared/appresponse.shared").AppResponse<import("mongoose").Document<unknown, {}, import("../../database/schemas").OrderDocument, {}, {}> & import("../../database/schemas").Order & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
+    updateStatus(user: AuthenticatedUser, id: string, dto: UpdateOrderStatusDto): Promise<import("../../shared/appresponse.shared").AppResponse<import("mongoose").Document<unknown, {}, import("../../database/schemas").OrderDocument, {}, {}> & import("../../database/schemas").Order & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
         _id: import("mongoose").Types.ObjectId;
     }> & {
         __v: number;
