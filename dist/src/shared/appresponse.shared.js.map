@@ -1,0 +1,1 @@
+{"version":3,"file":"appresponse.shared.js","sourceRoot":"","sources":["../../../src/shared/appresponse.shared.ts"],"names":[],"mappings":";;AAUA,wCAYC;AAZD,SAAgB,cAAc,CAC5B,UAAsB,EACtB,OAAe,EACf,OAAiB,IAAI;IAErB,OAAO;QACL,UAAU;QACV,OAAO,EAAE,UAAU,IAAI,GAAG,IAAI,UAAU,GAAG,GAAG;QAC9C,OAAO;QACP,IAAI;QACJ,SAAS,EAAE,IAAI,IAAI,EAAE,CAAC,WAAW,EAAE;KACpC,CAAC;AACJ,CAAC"}
