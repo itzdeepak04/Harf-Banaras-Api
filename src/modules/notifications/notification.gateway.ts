@@ -22,6 +22,7 @@ interface SocketIdentity {
     origin: [
       'http://localhost:3000',
       'http://localhost:3001',
+      'https://harf-banaras-ui.vercel.app',
       'https://harf-banaras-gvl9ue2y4-nahak-deepak-prakashchandras-projects.vercel.app',
       process.env.FRONTEND_URL
     ].filter(Boolean),
