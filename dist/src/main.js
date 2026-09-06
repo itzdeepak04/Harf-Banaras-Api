@@ -5,7 +5,16 @@ const common_1 = require("@nestjs/common");
 const app_module_1 = require("./modules/app/app.module");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
-    app.enableCors();
+    const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'https://harf-banaras-gvl9ue2y4-nahak-deepak-prakashchandras-projects.vercel.app',
+        process.env.FRONTEND_URL
+    ].filter(Boolean);
+    app.enableCors({
+        origin: allowedOrigins,
+        credentials: true,
+    });
     app.setGlobalPrefix('api/v1');
     app.useGlobalPipes(new common_1.ValidationPipe({ whitelist: true, transform: true }));
     const port = process.env.PORT || 3000;

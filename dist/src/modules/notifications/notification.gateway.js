@@ -85,7 +85,15 @@ __decorate([
 exports.NotificationGateway = NotificationGateway = __decorate([
     (0, websockets_1.WebSocketGateway)({
         namespace: 'notifications',
-        cors: { origin: '*' },
+        cors: {
+            origin: [
+                'http://localhost:3000',
+                'http://localhost:3001',
+                'https://harf-banaras-gvl9ue2y4-nahak-deepak-prakashchandras-projects.vercel.app',
+                process.env.FRONTEND_URL
+            ].filter(Boolean),
+            credentials: true,
+        },
     }),
     __metadata("design:paramtypes", [jwt_1.JwtService,
         config_1.ConfigService])
